@@ -70,7 +70,7 @@ Het uitvoerbare bestand is volledig zelfstandig en bevat:
 
 Je kunt `StudyTimer.exe` gewoon kopiëren naar elke Windows PC en uitvoeren!
 
-## 🛠️ Technisch
+## Technisch
 
 - Framework: .NET 10 / WPF
 - Platform: Windows x64
@@ -78,5 +78,5 @@ Je kunt `StudyTimer.exe` gewoon kopiëren naar elke Windows PC en uitvoeren!
 
 ---
 
-Gemaakt met ❤️ door Liselot , Ik had andere dingen om op te focussen. Maar dat kon niet dus dan maak ik het maar zelf.
+Gemaakt met ❤ en een flinke dosis copilot door Liselot, Ik had andere dingen om op te focussen. Maar dat kon niet dus dan maak ik het maar zelf.
 
