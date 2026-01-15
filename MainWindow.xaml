@@ -1,0 +1,578 @@
+﻿<Window x:Class="StudyTimer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="StudyTimer" Height="420" Width="720"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="Bahnschrift"
+        WindowState="Maximized"
+        WindowStyle="None"
+        ResizeMode="CanResize"
+        KeyDown="Window_KeyDown">
+
+    <Grid>
+        <!-- Default gradient background -->
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#0F2027" Offset="0.0"/>
+                <GradientStop Color="#203A43" Offset="0.5"/>
+                <GradientStop Color="#2C5364" Offset="1.0"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+        
+        <!-- Image brush overlay (voor custom wallpaper) -->
+        <Grid x:Name="ImageBackgroundLayer" Visibility="Collapsed">
+            <Grid.Background>
+                <ImageBrush x:Name="BgBrush" Stretch="UniformToFill" Opacity="0.95"/>
+            </Grid.Background>
+        </Grid>
+
+        <Border Background="#66000000"/>
+
+        <Grid Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <!-- Centered Title at Top -->
+            <Grid Grid.Row="0" Margin="0,0,0,20">
+                <TextBlock Text="F O C U S     T I M E R"
+                           FontSize="16"
+                           Foreground="White"
+                           FontWeight="Normal"
+                           HorizontalAlignment="Center"/>
+                
+                <!-- Gear icon button -->
+                <Button x:Name="SettingsButton" 
+                        HorizontalAlignment="Right"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Width="32" Height="32"
+                        Click="SettingsButton_Click"
+                        Cursor="Hand">
+                    <TextBlock Text="🔧" FontSize="24" Foreground="White"/>
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}" 
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="16">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#33FFFFFF"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                
+                <!-- Settings popup -->
+                <Popup x:Name="SettingsPopup" 
+                       PlacementTarget="{Binding ElementName=SettingsButton}"
+                       Placement="Bottom"
+                       StaysOpen="False"
+                       AllowsTransparency="True">
+                    <Border Background="#EE1A1A1A" 
+                            BorderBrush="#66FFFFFF" 
+                            BorderThickness="1"
+                            CornerRadius="12"
+                            Padding="20">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="20" ShadowDepth="3" Opacity="0.5"/>
+                        </Border.Effect>
+                        <StackPanel Width="280">
+                            <!-- Work duration setting -->
+                            <TextBlock Text="Werk timer (minuten):" FontWeight="SemiBold" Foreground="White" FontSize="13" Margin="0,0,0,8"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                                <TextBox x:Name="WorkMinutesBox" Width="90" Height="36" Text="50" Margin="0,0,10,0" 
+                                         Background="#33FFFFFF" Foreground="White" BorderBrush="#66FFFFFF" 
+                                         FontSize="14" VerticalContentAlignment="Center" Padding="10,0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="TextBox">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                                BorderThickness="1"
+                                                                CornerRadius="8">
+                                                            <ScrollViewer x:Name="PART_ContentHost" Margin="8,0"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                                <Button Content="set" Click="SetWorkTimer_Click" Width="70" Height="36" Padding="20,0">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="#33FFFFFF"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter Property="BorderBrush" Value="#66FFFFFF"/>
+                                            <Setter Property="BorderThickness" Value="1"/>
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                            <Setter Property="FontSize" Value="13"/>
+                                            <Setter Property="Cursor" Value="Hand"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                                CornerRadius="8">
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#55FFFFFF"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
+                            
+                            <!-- Break duration setting -->
+                            <TextBlock Text="Pauze timer (minuten):" FontWeight="SemiBold" Foreground="White" FontSize="13" Margin="0,0,0,8"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                                <TextBox x:Name="BreakMinutesBox" Width="90" Height="36" Text="5" Margin="0,0,10,0"
+                                         Background="#33FFFFFF" Foreground="White" BorderBrush="#66FFFFFF" 
+                                         FontSize="14" VerticalContentAlignment="Center" Padding="10,0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="TextBox">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                                BorderThickness="1"
+                                                                CornerRadius="8">
+                                                            <ScrollViewer x:Name="PART_ContentHost" Margin="8,0"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                                <Button Content="set" Click="SetBreakTimer_Click" Width="70" Height="36" Padding="20,0">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="#33FFFFFF"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter Property="BorderBrush" Value="#66FFFFFF"/>
+                                            <Setter Property="BorderThickness" Value="1"/>
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                            <Setter Property="FontSize" Value="13"/>
+                                            <Setter Property="Cursor" Value="Hand"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                                CornerRadius="8">
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#55FFFFFF"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
+                            
+                            <!-- Auto-start break checkbox -->
+                            <CheckBox x:Name="AutoStartBreakCheckbox" 
+                                      Content="Start pauze automatisch" 
+                                      IsChecked="True"
+                                      Foreground="White"
+                                      FontSize="13"
+                                      Margin="0,0,0,20"
+                                      Cursor="Hand">
+                                <CheckBox.Style>
+                                    <Style TargetType="CheckBox">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="BorderBrush" Value="#66FFFFFF"/>
+                                    </Style>
+                                </CheckBox.Style>
+                            </CheckBox>
+                            
+                            <!-- Wallpaper picker -->
+                            <Button Content="Kies wallpaper" 
+                                    Click="PickWallpaper_Click" 
+                                    Height="40"
+                                    Margin="0,0,0,10"
+                                    HorizontalAlignment="Stretch">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="#33FFFFFF"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                        <Setter Property="BorderBrush" Value="#66FFFFFF"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="FontSize" Value="14"/>
+                                        <Setter Property="Cursor" Value="Hand"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                            CornerRadius="10">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#55FFFFFF"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            
+                            <!-- Reset to default background -->
+                            <Button Content="↻ Standaard achtergrond" 
+                                    Click="ResetBackground_Click" 
+                                    Height="40"
+                                    HorizontalAlignment="Stretch">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="#33FFFFFF"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                        <Setter Property="BorderBrush" Value="#66FFFFFF"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="FontSize" Value="14"/>
+                                        <Setter Property="Cursor" Value="Hand"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                            CornerRadius="10">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#55FFFFFF"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                </Popup>
+            </Grid>
+            
+            <!-- Main content with columns -->
+            <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="260"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="260"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Todo List Section -->
+            <Border Grid.Column="0" 
+                    Background="#22000000" 
+                    CornerRadius="8"
+                    Padding="16"
+                    Margin="0,0,12,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Grid>
+                        <TextBlock Text="T o d o - L i s t" 
+                                   FontSize="18" 
+                                   Foreground="White" 
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Left"
+                                   Margin="0,0,0,12"/>
+                        
+                        <!-- Clear todo list button -->
+                        <Button HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Width="28" Height="28"
+                                Click="ClearTodoList_Click"
+                                Cursor="Hand"
+                                ToolTip="Verwijder afgevinkte items">
+                            <TextBlock Text="❌" FontSize="18" Foreground="White"/>
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" 
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                        CornerRadius="14">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#33FFFFFF"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </Grid>
+                    
+                    <ScrollViewer Grid.Row="1" 
+                                  VerticalScrollBarVisibility="Auto"
+                                  Background="Transparent">
+                        <ItemsControl x:Name="TodoItemsControl" Background="Transparent">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox Margin="0,0,0,8"
+                                              IsChecked="{Binding IsCompleted, Mode=TwoWay}"
+                                              Checked="TodoCheckBox_Changed"
+                                              Unchecked="TodoCheckBox_Changed"
+                                              Cursor="Hand">
+                                        <CheckBox.Style>
+                                            <Style TargetType="CheckBox">
+                                                <Setter Property="Foreground" Value="White"/>
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Setter Property="BorderBrush" Value="#66FFFFFF"/>
+                                            </Style>
+                                        </CheckBox.Style>
+                                        <TextBlock Text="{Binding Text}" 
+                                                   Foreground="White"
+                                                   TextWrapping="Wrap"
+                                                   FontSize="14">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsCompleted}" Value="True">
+                                                            <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                            <Setter Property="Foreground" Value="#99FFFFFF"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </CheckBox>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    
+                    <StackPanel Grid.Row="2" Margin="0,12,0,0">
+                        <TextBox x:Name="NewTodoTextBox" 
+                                 Background="#33FFFFFF"
+                                 Foreground="White"
+                                 BorderBrush="#66FFFFFF"
+                                 Padding="10,8"
+                                 FontSize="13"
+                                 Text=""
+                                 KeyDown="NewTodoTextBox_KeyDown">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="TextBox">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="8"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ScrollViewer x:Name="PART_ContentHost"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+                        <TextBlock Text="Druk Enter om toe te voegen" 
+                                   FontSize="11" 
+                                   Foreground="#99FFFFFF"
+                                   Margin="4,6,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Timer Section -->
+            <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock x:Name="TimerText"
+                           Text="50:00"
+                           FontSize="88"
+                           Foreground="White"
+                           FontWeight="Normal"
+                           FontFamily="Bahnschrift"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,10">
+                    <TextBlock.Effect>
+                        <DropShadowEffect BlurRadius="26" ShadowDepth="0" Opacity="0.7" Color="#000000"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+                
+                <TextBlock x:Name="ModeText"
+                           Text=""
+                           FontSize="15"
+                           Foreground="#CCFFFFFF"
+                           FontWeight="Normal"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,24"/>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button x:Name="StartButton" Content="S T A R T" Width="90" Height="36" Click="Start_Click" Margin="0,0,12,0">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="#33FFFFFF"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="BorderBrush" Value="#66FFFFFF"/>
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="FontWeight" Value="Normal"/>
+                                <Setter Property="FontSize" Value="11"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    CornerRadius="18">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#55FFFFFF"/>
+                                        <Setter Property="BorderBrush" Value="#99FFFFFF"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter Property="Background" Value="#77FFFFFF"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button x:Name="PauseButton" Content="P A U S E" Width="90" Height="36" Click="Pause_Click" Margin="0,0,12,0">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="#33FFFFFF"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="BorderBrush" Value="#66FFFFFF"/>
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="FontWeight" Value="Normal"/>
+                                <Setter Property="FontSize" Value="11"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    CornerRadius="18">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#55FFFFFF"/>
+                                        <Setter Property="BorderBrush" Value="#99FFFFFF"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter Property="Background" Value="#77FFFFFF"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button x:Name="ResetButton" Content="R E S E T" Width="90" Height="36" Click="Reset_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="#33FFFFFF"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="BorderBrush" Value="#66FFFFFF"/>
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="FontWeight" Value="Normal"/>
+                                <Setter Property="FontSize" Value="11"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    CornerRadius="18">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#55FFFFFF"/>
+                                        <Setter Property="BorderBrush" Value="#99FFFFFF"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter Property="Background" Value="#77FFFFFF"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+            </Grid>
+            </Grid>
+        </Grid>
+        
+        <!-- Total Focus Time Tracker - Bottom Right -->
+        <TextBlock x:Name="TotalFocusTimeText"
+                   Text="Totaal gefocust: 0m"
+                   FontSize="12"
+                   Foreground="#99FFFFFF"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Bottom"
+                   Margin="0,0,24,16"/>
+    </Grid>
+</Window>
